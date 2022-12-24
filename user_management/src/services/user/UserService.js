@@ -1,5 +1,6 @@
 const UserModel = require("../../db/model/UserModel");
 const ResponseService = require("../common/ResponseService");
+const Producer = require("./../../messing-service/Publisher");
 const Encryption = require("../common/Encryption");
 const { v4: uuidv4 } = require("uuid");
 const UserUtility = require("./UserUtility");
@@ -26,6 +27,7 @@ class UserService extends ResponseService{
             const token = this.userUtility.generateJWT({user_id: userDetails.user_id});
             userDetails.tokens = [{token}];
             const resposne = await this.userModel.save(userDetails);
+            await Producer(userDetails.user_id, "User Registered.");
             return this.successResponse(resposne);
         }catch(err){
             console.error("----- Error in UserService registerUser method -----", err.message);
@@ -50,6 +52,7 @@ class UserService extends ResponseService{
             const password = this.encryption.encypt(body.password);
             const record = await this.userUtility.login({email: body.email, password});
 
+            await Producer(record.user_id, "User Logged In");
             return Promise.resolve(this.successResponse(record));
         }catch(err){
             console.error("----- Error in UserService login method -----", err);
@@ -62,12 +65,12 @@ class UserService extends ResponseService{
         try{
 
             const tokens = body.tokens;
-            let tokenIndex = tokens.findIndex(token => token.token !== loggedToken);
-
-            tokens.splice(tokenIndex - 1, 1);
+            let tokenIndex = tokens.findIndex(token => token.token === loggedToken);
+            tokens.splice(tokenIndex, 1);
 
             const result = await this.userUtility.updateRecord({user_id: body.user_id}, {tokens});
             if(result.modifiedCount === 1){
+                await Producer(body.user_id, "User Logged out.");
                 return Promise.resolve(this.successResponse({
                     "message": "Successfully Logged out of device",
                     "user_id": body.user_id
@@ -92,11 +95,12 @@ class UserService extends ResponseService{
 
             const result = await this.userUtility.updateRecord({user_id: user.user_id}, {messages});
 
-            if(result.modifiedCount === 1)
+            if(result.modifiedCount === 1){
+                await Producer(user.user_id, `Message: ${message}`);
                 return Promise.resolve(this.successResponse({
                     message: "Message sent !!!"
                 }));
-            else
+            }else
                 return Promise.reject("Error in Sending message !!")
         }catch(err){
             console.error("----- Error in UserService sendMessage method -----", err);

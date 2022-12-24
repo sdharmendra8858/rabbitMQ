@@ -22,7 +22,12 @@ class UserModel {
 
     async findOne(condition){
         try{
-            return await this.model.findOne(condition);
+            const result = await this.model.findOne(condition);
+            if(result !== null){
+                return Promise.resolve(result.toObject());
+            }else{
+                return Promise.resolve({});
+            }
         }catch(err){
             return Promise.reject(err);
         }

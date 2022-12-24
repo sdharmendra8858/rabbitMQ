@@ -30,8 +30,11 @@ class UserUtility {
             const token = this.generateJWT({user_id: record.user_id});
 
             record.tokens.push({token});
-
+            
             const result = await this.updateRecord({user_id: record.user_id}, {tokens: record.tokens});
+            
+            // provide token for current login session
+            record.tokens = [{token}];
             if(result.modifiedCount === 1){
                 return Promise.resolve(record);
             }else{

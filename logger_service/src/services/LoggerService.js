@@ -1,8 +1,9 @@
 const fs = require("fs");
 
 class LoggerService {
-    constructor(){
-        this.dir = "./data"
+    constructor(socket){
+        this.socket = socket;
+        this.dir = "./data";
 
         // create data folder if not exist
         if(!fs.existsSync(this.dir)){
@@ -24,6 +25,7 @@ class LoggerService {
                     return Promise.reject(false)
                 }
             });
+            this.socket.emiter("newmsg", {message: messageToWrite});
 
         }catch(err){
             console.error("----- Error in LoggerService writeLogs method -----");

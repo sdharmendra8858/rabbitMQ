@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Hello world</title>
+</head>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    var socket = io();
+    socket.on('newmsg', function (data) {
+        document.getElementById('message-container').innerHTML += '<div>' + data.message + '</div>'
+    })
+</script>
+
+<body>
+    <div>
+        <h4>Printing logs</h4>
+    </div>
+    <hr>
+    <div id="message-container"></div>
+</body>
+
+</html>

@@ -10,8 +10,8 @@ const auth = async(req, res, next) => {
         const userModel = new UserModel();
         const user = await userModel.findOne({ user_id: decode.user_id , 'tokens.token' : token})
 
-        if(!user){
-            throw new Error()
+        if(!user || !Object.keys(user).length){
+            throw new Error("Invalid User");
         }
 
         req.token = token

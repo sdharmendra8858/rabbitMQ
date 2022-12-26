@@ -14,6 +14,6 @@ app.get('/', function (req, res) {
     res.sendFile(path.resolve("./src/static/index.html"));
 });
 
-http.listen(3001, function () {
+http.listen(process.env.PORT, function () {
     console.log('listening on localhost:3001');
 });
